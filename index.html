@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceGen - Advanced AI Assistant</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --chat-bg: #1e293b;
+            --user-msg-bg: #3b82f6;
+            --ai-msg-bg: #334155;
+            --text-color: #f1f5f9;
+            --accent-color: #60a5fa;
+            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        header {
+            padding: 1rem 2rem;
+            background-color: var(--chat-bg);
+            border-bottom: 1px solid #475569;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        /* Chat Container */
+        #chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            scroll-behavior: smooth;
+        }
+
+        /* Messages */
+        .message {
+            max-width: 80%;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background-color: var(--user-msg-bg);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 1rem 1rem 0 1rem;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background-color: var(--ai-msg-bg);
+            padding: 1.5rem;
+            border-radius: 1rem 1rem 1rem 0;
+            border: 1px solid #475569;
+        }
+
+        /* AI Output Formatting */
+        .message.ai h3 { margin-top: 0; color: var(--accent-color); }
+        .message.ai ul { padding-left: 1.5rem; }
+        .message.ai li { margin-bottom: 0.5rem; }
+        .message.ai strong { color: #fff; }
+        .message.ai .tag { 
+            display: inline-block; 
+            font-size: 0.75rem; 
+            padding: 0.2rem 0.5rem; 
+            border-radius: 4px; 
+            background: #0f172a; 
+            margin-right: 0.5rem;
+            border: 1px solid #475569;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 1.5rem 2rem;
+            background-color: var(--chat-bg);
+            border-top: 1px solid #475569;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 1px solid #475569;
+            border-radius: 0.75rem;
+            color: white;
+            padding: 1rem;
+            font-family: inherit;
+            resize: none;
+            height: 50px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--accent-color);
+        }
+
+        button#send-btn {
+            background-color: var(--accent-color);
+            color: #0f172a;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 0 1.5rem;
+            height: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: filter 0.2s;
+        }
+
+        button#send-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Typing Indicator */
+        .typing {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-left: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Capability Buttons (Visual only for prototype) */
+        .capabilities {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        
+        .cap-btn {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #94a3b8;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .cap-btn:hover {
+            background: #334155;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+            SpaceGen
+        </div>
+        <div class="status-badge">Online &bullet; v2.0</div>
+    </header>
+
+    <div id="chat-container">
+        <div class="message ai">
+            <h3>Hello, I am SpaceGen.</h3>
+            <p>I am your advanced AI assistant designed for conversation, real-time data, and creative generation. How can I assist you today?</p>
+            <div class="capabilities">
+                <button class="cap-btn" onclick="insertPrompt('Generate a photorealistic image of a futuristic city.')">🖼️ Image Gen</button>
+                <button class="cap-btn" onclick="insertPrompt('Create a cinematic video prompt for a space documentary.')">🎥 Video Gen</button>
+                <button class="cap-btn" onclick="insertPrompt('What is the latest news on AI technology?')">🌍 Real-time Search</button>
+                <button class="cap-btn" onclick="insertPrompt('Write a blog post about sustainable energy.')">📝 Content Creation</button>
+            </div>
+            <p style="font-size: 0.9rem; color: #94a3b8;">Try asking me to generate images, write scripts, or find live information.</p>
+        </div>
+    </div>
+
+    <div class="typing" id="typing-indicator">SpaceGen is thinking...</div>
+
+    <div class="input-area">
+        <div class="input-wrapper">
+            <textarea id="user-input" placeholder="Message SpaceGen..." onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+        </div>
+        <button id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        function insertPrompt(text) {
+            userInput.value = text;
+            userInput.focus();
+        }
+
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // 1. Add User Message
+            addMessage(text, 'user');
+            userInput.value = '';
+
+            // 2. Show Typing Indicator
+            typingIndicator.style.display = 'block';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // 3. Simulate AI Processing Delay
+            setTimeout(() => {
+                typingIndicator.style.display = 'none';
+                const response = generateResponse(text);
+                addMessage(response, 'ai');
+            }, 1500);
+        }
+
+        function addMessage(htmlContent, sender) {
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            div.innerHTML = htmlContent;
+            chatContainer.appendChild(div);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // SIMULATED LOGIC: This mimics the "SpaceGen" persona defined in your prompt.
+        function generateResponse(input) {
+            const lowerInput = input.toLowerCase();
+            const date = new Date().toLocaleDateString();
+            const time = new Date().toLocaleTimeString();
+
+            // 1. IMAGE GENERATION LOGIC
+            if (lowerInput.includes('image') || lowerInput.includes('picture') || lowerInput.includes('draw')) {
+                return `
+                    <span class="tag">IMAGE GENERATION</span>
+                    <h3>Creating Image Prompt</h3>
+                    <p>Here is a detailed prompt optimized for high-quality generation:</p>
+                    <div style="background:#1e293b; padding:1rem; border-left: 3px solid #60a5fa; margin: 1rem 0; font-family: monospace;">
+                        <strong>Prompt:</strong> ${input.replace(/image|picture|draw|generate/gi, '').trim()}, 8k resolution, highly detailed, photorealistic texture, cinematic lighting, shallow depth of field, trending on ArtStation.
+                    </div>
+                    <ul>
+                        <li><strong>Aspect Ratio:</strong> 16:9</li>
+                        <li><strong>Style:</strong> Photorealistic / Cinematic</li>
+                        <li><strong>Lighting:</strong> Volumetric soft lighting</li>
+                    </ul>
+                    <p><em>Would you like me to refine the style or camera angle?</em></p>
+                `;
+            }
+
+            // 2. VIDEO GENERATION LOGIC
+            if (lowerInput.includes('video') || lowerInput.includes('movie') || lowerInput.includes('clip')) {
+                return `
+                    <span class="tag">VIDEO GENERATION</span>
+                    <h3>Video Production Plan</h3>
+                    <p>I have structured your request into a professional video prompt compatible with tools like Sora or Runway:</p>
+                    <ul>
+                        <li><strong>Scene Description:</strong> ${input.replace(/video|make a/gi, '').trim()}</li>
+                        <li><strong>Camera Movement:</strong> Slow pan establishing shot, transitioning to close-up.</li>
+                        <li><strong>Duration:</strong> 15 seconds</li>
+                        <li><strong>Style:</strong> Cinematic 4K, 24fps film grain look.</li>
+                    </ul>
+                    <p><strong>Voice-over Suggestion:</strong> "In a world where boundaries dissolve, only the imagination remains..."</p>
+                `;
+            }
+
+            // 3. REAL-TIME DATA LOGIC (Simulated)
+            if (lowerInput.includes('news') || lowerInput.includes('price') || lowerInput.includes('weather') || lowerInput.includes('latest')) {
+                return `
+                    <span class="tag">REAL-TIME DATA</span>
+                    <h3>Fetching Live Information...</h3>
+                    <p><strong>Status:</strong> Data retrieved successfully.</p>
+                    <ul>
+                        <li><strong>Source:</strong> Global News APIs / Financial Aggregators</li>
+                        <li><strong>Timestamp:</strong> ${date} at ${time}</li>
+                    </ul>
+                    <hr style="border:0; border-top:1px solid #475569; margin:1rem 0;">
+                    <p>Here is the summary based on current trends for "<strong>${input}</strong>":</p>
+                    <p><em>(Note: Since I am a prototype, I am simulating a live search result. In a production environment, I would display the actual API results here regarding stocks, weather, or breaking news.)</em></p>
+                `;
+            }
+
+            // 4. CONTENT CREATION / GENERAL CHAT
+            return `
+                <h3>SpaceGen Response</h3>
+                <p>Thank you for your query. Based on your input, here is the information you need:</p>
+                <p>You asked: <em>"${input}"</em></p>
+                <br>
+                <ul>
+                    <li><strong>Clarity:</strong> I have analyzed your request for key themes.</li>
+                    <li><strong>Action:</strong> I am ready to generate content, code, or media based on this topic.</li>
+                </ul>
+                <p>Is there a specific format you would like this in (e.g., Blog post, Table, Summary)?</p>
+            `;
+        }
+    </script>
+</body>
+</html>
