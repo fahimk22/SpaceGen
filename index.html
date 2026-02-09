@@ -1,278 +1,202 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>SparkGen – AI Chat Platform</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <title>SparkGen AI</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    :root {
-      --bg: #ffffff;
-      --text: #111;
-      --sidebar: #f4f4f4;
-      --accent: #ff6a00;
-      --card: #fafafa;
+    /* CSS STYLES */
+    body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; display: flex; height: 100vh; background: #f0f0f0; }
+    
+    /* Sidebar */
+    .sidebar { width: 250px; background: #111; color: #fff; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
+    .sidebar h2 { margin-top: 0; color: #ff6a00; display: flex; align-items: center; gap: 10px; }
+    .sidebar button { 
+        width: 100%; margin: 5px 0; padding: 12px; border: none; 
+        background: #222; color: #aaa; cursor: pointer; text-align: left;
+        border-radius: 8px; transition: 0.2s; font-size: 16px;
     }
+    .sidebar button:hover { background: #333; color: #fff; }
+    .sidebar button.active { background: #ff6a00; color: #fff; font-weight: bold; }
+    
+    /* Main Chat Area */
+    .main { flex: 1; display: flex; flex-direction: column; background: #fff; }
+    .chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+    
+    /* Messages */
+    .msg { padding: 12px 16px; border-radius: 12px; max-width: 75%; line-height: 1.5; word-wrap: break-word; font-size: 15px; animation: fadeIn 0.3s; }
+    .user { background: #ff6a00; color: #fff; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .bot { background: #f1f5f9; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #e2e8f0; }
+    
+    /* Images inside chat */
+    .bot img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; }
+    
+    /* Input Area */
+    .input-area { display: flex; padding: 20px; border-top: 1px solid #eee; background: #fff; }
+    .input-area input { flex: 1; padding: 15px; border: 1px solid #ddd; border-radius: 30px; outline: none; font-size: 16px; transition: 0.3s; }
+    .input-area input:focus { border-color: #ff6a00; }
+    .input-area button { padding: 0 25px; margin-left: 10px; background: #ff6a00; color: #fff; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.2s; }
+    .input-area button:hover { background: #e65c00; }
+    .input-area button:disabled { background: #ccc; cursor: not-allowed; }
 
-    body.dark {
-      --bg: #0f0f0f;
-      --text: #f5f5f5;
-      --sidebar: #1a1a1a;
-      --accent: #ff8c1a;
-      --card: #1f1f1f;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* SIDEBAR */
-    .sidebar {
-      width: 260px;
-      background: var(--sidebar);
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .logo {
-      font-size: 22px;
-      font-weight: bold;
-      color: var(--accent);
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    .sidebar button {
-      padding: 10px;
-      border: none;
-      background: var(--card);
-      color: var(--text);
-      cursor: pointer;
-      border-radius: 6px;
-      text-align: left;
-    }
-
-    .sidebar button:hover {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .spacer {
-      flex-grow: 1;
-    }
-
-    /* MAIN */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .topbar {
-      padding: 12px;
-      background: var(--card);
-      border-bottom: 1px solid #ddd;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .mode {
-      font-weight: bold;
-      color: var(--accent);
-    }
-
-    .chat {
-      flex: 1;
-      padding: 15px;
-      overflow-y: auto;
-    }
-
-    .msg {
-      margin-bottom: 12px;
-      max-width: 80%;
-      padding: 10px;
-      border-radius: 8px;
-      line-height: 1.4;
-    }
-
-    .user {
-      background: var(--accent);
-      color: #fff;
-      align-self: flex-end;
-      margin-left: auto;
-    }
-
-    .bot {
-      background: var(--card);
-      border: 1px solid #ddd;
-    }
-
-    .input-area {
-      display: flex;
-      padding: 10px;
-      background: var(--card);
-      border-top: 1px solid #ddd;
-    }
-
-    .input-area input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      outline: none;
-    }
-
-    .input-area button {
-      margin-left: 10px;
-      padding: 10px 16px;
-      border: none;
-      background: var(--accent);
-      color: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    /* SETTINGS */
-    .settings {
-      display: none;
-      padding: 15px;
-      background: var(--card);
-      border-top: 1px solid #ddd;
-    }
-
-    .settings label {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    @media (max-width: 768px) {
-      .sidebar {
-        width: 200px;
-      }
-    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 
 <body>
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="logo">⚡ SparkGen</div>
 
-    <button onclick="setMode('Chat')">💬 Chat</button>
-    <button onclick="setMode('Image')">🎨 Image Generator</button>
-    <button onclick="setMode('Video')">🎥 Video Generator</button>
-    <button onclick="setMode('Search')">🌐 Web Search</button>
+<div class="sidebar">
+  <h2>⚡ SparkGen</h2>
+  <button id="btn-chat" onclick="setMode('chat')" class="active">💬 Chat</button>
+  <button id="btn-image" onclick="setMode('image')">🎨 Image</button>
+  <button id="btn-video" onclick="setMode('video')">🎥 Video</button>
+  <button id="btn-search" onclick="setMode('search')">🌐 Search</button>
+</div>
 
-    <button onclick="newChat()">➕ New Chat</button>
-
-    <div class="spacer"></div>
-
-    <button onclick="toggleSettings()">⚙️ Settings</button>
-    <button onclick="toggleTheme()">🌓 Toggle Theme</button>
+<div class="main">
+  <div class="chat" id="chat">
+    </div>
+  <div class="input-area">
+    <input id="input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') send()">
+    <button id="sendBtn" onclick="send()">Send</button>
   </div>
+</div>
 
-  <!-- MAIN -->
-  <div class="main">
-    <div class="topbar">
-      <div class="mode" id="mode">Chat Mode</div>
-      <div>SparkGen AI</div>
-    </div>
+<script>
+// --- CORE LOGIC ---
+let mode = "chat";
+const chatBox = document.getElementById("chat");
+const inputBox = document.getElementById("input");
+const sendBtn = document.getElementById("sendBtn");
 
-    <div class="chat" id="chat"></div>
+// Initialize
+window.onload = function() {
+    bot("Welcome to SparkGen ⚡\nI am ready to help. Select a mode on the left.");
+    login(); // Simulate login
+};
 
-    <div class="settings" id="settings">
-      <label>
-        Dark Mode
-        <input type="checkbox" onchange="toggleTheme()">
-      </label>
-      <label>
-        Save Chat History
-        <input type="checkbox">
-      </label>
-    </div>
+function setMode(m) {
+    mode = m;
+    
+    // UI Updates
+    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + m).classList.add('active');
+    
+    let msg = "";
+    if(m === 'chat') msg = "Switched to Chat Mode. Ask me anything.";
+    if(m === 'image') msg = "Switched to Image Mode. Describe what you want to see.";
+    if(m === 'video') msg = "Switched to Video Mode. Describe a scene.";
+    if(m === 'search') msg = "Switched to Search Mode. I'll find live data for you.";
+    
+    bot(msg);
+    inputBox.placeholder = `Type here for ${m}...`;
+    inputBox.focus();
+}
 
-    <div class="input-area">
-      <input id="input" placeholder="Type your message..." />
-      <button onclick="send()">Send</button>
-    </div>
-  </div>
+// Display User Message
+function user(text) {
+    add("user", text);
+}
 
-  <script>
-    let currentMode = "Chat";
+// Display Bot Message
+function bot(text, isImage = false) {
+    add("bot", text, isImage);
+}
 
-    function setMode(mode) {
-      currentMode = mode;
-      document.getElementById("mode").innerText = mode + " Mode";
-      botMessage("You are now in " + mode + " mode.");
+// Add message to DOM
+function add(cls, content, isImage) {
+    const d = document.createElement("div");
+    d.className = "msg " + cls;
+    
+    if (isImage) {
+        d.innerHTML = `Here is your generated image:<br><img src="${content}" alt="Generated Image">`;
+    } else {
+        // Simple formatting: newlines to <br>
+        d.innerHTML = content.replace(/\n/g, '<br>');
+    }
+    
+    chatBox.appendChild(d);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Simulate Login
+async function login() {
+    // In a real app, this would fetch from a server.
+    // We simulate it here so the variable exists.
+    localStorage.setItem("token", "simulated-token-123");
+    console.log("Logged in automatically.");
+}
+
+// --- SEND FUNCTION ---
+async function send() {
+    const text = inputBox.value.trim();
+    if (!text) return;
+
+    // 1. Clear input & show user message
+    user(text);
+    inputBox.value = "";
+    
+    // 2. Disable button while "thinking"
+    sendBtn.disabled = true;
+    sendBtn.innerText = "...";
+
+    // 3. Prepare payload (for simulation)
+    const body = {
+        token: localStorage.getItem("token"),
+        message: text,
+        mode: mode
+    };
+
+    // 4. CALL MOCK BACKEND (Simulating fetch)
+    try {
+        const data = await mockBackend(body);
+        
+        // 5. Handle Response
+        if (data.reply) bot(data.reply);
+        if (data.url) bot(data.url, true); // True flag renders image tag
+        if (data.results) bot("🔍 <b>Search Results:</b><br>" + data.results.join("<br>• "));
+        
+    } catch (e) {
+        bot("Error: " + e.message);
     }
 
-    function send() {
-      const input = document.getElementById("input");
-      const text = input.value.trim();
-      if (!text) return;
+    // 6. Re-enable button
+    sendBtn.disabled = false;
+    sendBtn.innerText = "Send";
+    inputBox.focus();
+}
 
-      userMessage(text);
-      input.value = "";
+// --- MOCK BACKEND (Simulates a server) ---
+// This replaces the fetch('http://localhost:3000') calls
+function mockBackend(data) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            let response = {};
 
-      // 🔌 API INTEGRATION POINT
-      // Replace this with OpenAI / Image / Video / Search API call
-      setTimeout(() => {
-        botMessage("SparkGen response for \"" + text + "\" in " + currentMode + " mode.");
-      }, 600);
-    }
+            if (data.mode === 'chat') {
+                response.reply = "I understand you said: '" + data.message + "'. As an AI, I can help you elaborate on this topic.";
+            } 
+            else if (data.mode === 'image') {
+                // Returns a random high-quality placeholder image
+                const keyword = data.message.split(' ')[0];
+                response.url = `https://picsum.photos/seed/${keyword}/400/300`; 
+                response.reply = "Generating image based on: " + data.message;
+            } 
+            else if (data.mode === 'video') {
+                response.reply = "🎥 <b>Video Prompt Generated:</b><br>Scene: " + data.message + "<br>Style: Cinematic, 4K<br>Camera: Slow Pan<br>(Simulated Video Output)";
+            } 
+            else if (data.mode === 'search') {
+                response.results = [
+                    "Latest news about " + data.message,
+                    "Wikipedia entry for " + data.message,
+                    "Top trending articles relating to " + data.message
+                ];
+            }
 
-    function userMessage(text) {
-      const div = document.createElement("div");
-      div.className = "msg user";
-      div.innerText = text;
-      document.getElementById("chat").appendChild(div);
-      scrollBottom();
-    }
+            resolve(response);
+        }, 1000); // Simulate 1 second network delay
+    });
+}
+</script>
 
-    function botMessage(text) {
-      const div = document.createElement("div");
-      div.className = "msg bot";
-      div.innerText = text;
-      document.getElementById("chat").appendChild(div);
-      scrollBottom();
-    }
-
-    function scrollBottom() {
-      const chat = document.getElementById("chat");
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    function newChat() {
-      document.getElementById("chat").innerHTML = "";
-      botMessage("New chat started.");
-    }
-
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-    }
-
-    function toggleSettings() {
-      const s = document.getElementById("settings");
-      s.style.display = s.style.display === "block" ? "none" : "block";
-    }
-
-    // Welcome message
-    botMessage("Welcome to SparkGen ⚡ How can I help you today?");
-  </script>
 </body>
 </html>
