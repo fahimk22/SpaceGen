@@ -1,473 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpaceGen - Light Mode</title>
-    <style>
-        :root {
-            /* Light Theme Variables */
-            --bg-body: #f1f5f9;       /* Light grey background */
-            --bg-sidebar: #ffffff;    /* White sidebar */
-            --bg-chat: #ffffff;       /* White chat background */
-            --text-primary: #0f172a;  /* Dark text */
-            --text-secondary: #64748b;/* Grey text */
-            --border-color: #e2e8f0;  /* Light borders */
-            --accent-color: #4f46e5;  /* Indigo accent */
-            --user-msg-bg: #4f46e5;   /* User bubble color */
-            --ai-msg-bg: #f8fafc;     /* AI bubble color */
-            --input-bg: #f8fafc;
-            --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
+  <meta charset="UTF-8" />
+  <title>SparkGen – AI Chat Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        * { box-sizing: border-box; }
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111;
+      --sidebar: #f4f4f4;
+      --accent: #ff6a00;
+      --card: #fafafa;
+    }
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: var(--font-family);
-            background-color: var(--bg-body);
-            color: var(--text-primary);
-            height: 100vh;
-            display: flex;
-            overflow: hidden;
-        }
+    body.dark {
+      --bg: #0f0f0f;
+      --text: #f5f5f5;
+      --sidebar: #1a1a1a;
+      --accent: #ff8c1a;
+      --card: #1f1f1f;
+    }
 
-        /* --- LEFT SIDEBAR (SETTINGS) --- */
-        aside {
-            width: 300px;
-            background-color: var(--bg-sidebar);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 1.5rem;
-            z-index: 10;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--accent-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-        }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-        .settings-group {
-            margin-bottom: 1.5rem;
-        }
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-        .settings-group h4 {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-        }
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 10px;
+    }
 
-        .api-input-wrapper {
-            margin-bottom: 1rem;
-        }
+    .sidebar button {
+      padding: 10px;
+      border: none;
+      background: var(--card);
+      color: var(--text);
+      cursor: pointer;
+      border-radius: 6px;
+      text-align: left;
+    }
 
-        .api-input-wrapper label {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-bottom: 0.4rem;
-            color: var(--text-primary);
-        }
+    .sidebar button:hover {
+      background: var(--accent);
+      color: #fff;
+    }
 
-        .api-input-wrapper input {
-            width: 100%;
-            padding: 0.6rem;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 0.9rem;
-            background: var(--input-bg);
-            color: var(--text-primary);
-            transition: border 0.2s;
-        }
+    .spacer {
+      flex-grow: 1;
+    }
 
-        .api-input-wrapper input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            background: #fff;
-        }
+    /* MAIN */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
 
-        .btn-save {
-            background-color: var(--text-primary);
-            color: white;
-            border: none;
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-top: auto; /* Push to bottom if needed */
-            transition: opacity 0.2s;
-        }
+    .topbar {
+      padding: 12px;
+      background: var(--card);
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        .btn-save:hover { opacity: 0.9; }
+    .mode {
+      font-weight: bold;
+      color: var(--accent);
+    }
 
-        /* --- MAIN CHAT AREA --- */
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            background-color: var(--bg-body);
-        }
+    .chat {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+    }
 
-        header {
-            padding: 1rem 2rem;
-            background: var(--bg-chat);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .msg {
+      margin-bottom: 12px;
+      max-width: 80%;
+      padding: 10px;
+      border-radius: 8px;
+      line-height: 1.4;
+    }
 
-        .model-select {
-            padding: 0.4rem 0.8rem;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: white;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
+    .user {
+      background: var(--accent);
+      color: #fff;
+      align-self: flex-end;
+      margin-left: auto;
+    }
 
-        #chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            background-color: #fff; /* Main chat background */
-        }
+    .bot {
+      background: var(--card);
+      border: 1px solid #ddd;
+    }
 
-        /* Message Bubbles */
-        .message {
-            max-width: 80%;
-            line-height: 1.6;
-            font-size: 1rem;
-            animation: fadeIn 0.3s ease;
-        }
+    .input-area {
+      display: flex;
+      padding: 10px;
+      background: var(--card);
+      border-top: 1px solid #ddd;
+    }
 
-        .message.user {
-            align-self: flex-end;
-            background-color: var(--user-msg-bg);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 12px 12px 0 12px;
-            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
-        }
+    .input-area input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
 
-        .message.ai {
-            align-self: flex-start;
-            background-color: var(--ai-msg-bg);
-            color: var(--text-primary);
-            padding: 1.5rem;
-            border-radius: 12px 12px 12px 0;
-            border: 1px solid var(--border-color);
-        }
+    .input-area button {
+      margin-left: 10px;
+      padding: 10px 16px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+    }
 
-        /* AI Content Styles */
-        .message.ai h3 { margin-top: 0; font-size: 1.1rem; color: var(--accent-color); }
-        .message.ai ul { padding-left: 1.5rem; color: var(--text-secondary); }
-        .message.ai strong { color: var(--text-primary); font-weight: 600; }
-        
-        .tag { 
-            display: inline-block; 
-            font-size: 0.7rem; 
-            font-weight: 700;
-            padding: 0.25rem 0.5rem; 
-            border-radius: 4px; 
-            background: #e0e7ff; 
-            color: var(--accent-color);
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-        }
+    /* SETTINGS */
+    .settings {
+      display: none;
+      padding: 15px;
+      background: var(--card);
+      border-top: 1px solid #ddd;
+    }
 
-        /* Input Area */
-        .input-area {
-            padding: 1.5rem 2rem;
-            background-color: var(--bg-chat);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
+    .settings label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
 
-        .input-wrapper { flex: 1; }
-
-        textarea {
-            width: 100%;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-            font-family: inherit;
-            resize: none;
-            height: 54px;
-            outline: none;
-            color: var(--text-primary);
-            transition: all 0.2s;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        textarea:focus {
-            background-color: #fff;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        button#send-btn {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 0 1.5rem;
-            height: 54px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
-            transition: transform 0.1s;
-        }
-
-        button#send-btn:active { transform: translateY(1px); }
-
-        /* Capability Buttons */
-        .caps-container {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-        }
-        
-        .cap-btn {
-            background: #fff;
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .cap-btn:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-            background: #eff6ff;
-        }
-
-        /* Typing Indicator */
-        .typing {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            padding: 0 2rem;
-            margin-bottom: 0.5rem;
-            display: none;
-            font-style: italic;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            aside { display: none; } /* Hide sidebar on mobile for now */
-            header { padding: 1rem; }
-            #chat-container { padding: 1rem; }
-            .input-area { padding: 1rem; }
-        }
-    </style>
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+      }
+    }
+  </style>
 </head>
+
 <body>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo">⚡ SparkGen</div>
 
-    <aside>
-        <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent-color)"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
-            SpaceGen
-        </div>
+    <button onclick="setMode('Chat')">💬 Chat</button>
+    <button onclick="setMode('Image')">🎨 Image Generator</button>
+    <button onclick="setMode('Video')">🎥 Video Generator</button>
+    <button onclick="setMode('Search')">🌐 Web Search</button>
 
-        <div class="settings-group">
-            <h4>LLM Configuration</h4>
-            <div class="api-input-wrapper">
-                <label>OpenAI API Key</label>
-                <input type="password" placeholder="sk-..." id="openai-key">
-            </div>
-            <div class="api-input-wrapper">
-                <label>Anthropic API Key</label>
-                <input type="password" placeholder="sk-ant-..." id="anthropic-key">
-            </div>
-        </div>
+    <button onclick="newChat()">➕ New Chat</button>
 
-        <div class="settings-group">
-            <h4>Image & Video APIs</h4>
-            <div class="api-input-wrapper">
-                <label>Stable Diffusion Key</label>
-                <input type="password" placeholder="Key..." id="sd-key">
-            </div>
-            <div class="api-input-wrapper">
-                <label>RunwayML Key</label>
-                <input type="password" placeholder="Key..." id="runway-key">
-            </div>
-        </div>
+    <div class="spacer"></div>
 
-        <div class="settings-group">
-            <h4>Search Tools</h4>
-            <div class="api-input-wrapper">
-                <label>Google Search / Serper</label>
-                <input type="password" placeholder="Key..." id="search-key">
-            </div>
-        </div>
+    <button onclick="toggleSettings()">⚙️ Settings</button>
+    <button onclick="toggleTheme()">🌓 Toggle Theme</button>
+  </div>
 
-        <button class="btn-save" onclick="saveSettings()">Save Configuration</button>
-    </aside>
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="mode" id="mode">Chat Mode</div>
+      <div>SparkGen AI</div>
+    </div>
 
-    <main>
-        <header>
-            <div style="font-weight:600; color:var(--text-primary)">New Session</div>
-            <select class="model-select">
-                <option>SpaceGen v2.0 (Fast)</option>
-                <option>SpaceGen Ultra (Reasoning)</option>
-            </select>
-        </header>
+    <div class="chat" id="chat"></div>
 
-        <div id="chat-container">
-            <div class="message ai">
-                <h3>Welcome to SpaceGen</h3>
-                <p>I am ready to assist. Please configure your API keys in the sidebar if you wish to connect to live services, or we can proceed in simulation mode.</p>
-                <div class="caps-container">
-                    <button class="cap-btn" onclick="insertPrompt('Generate a high-res image of a glass house in a forest.')">🖼️ Create Image</button>
-                    <button class="cap-btn" onclick="insertPrompt('Write a Python script to scrape stock prices.')">💻 Write Code</button>
-                    <button class="cap-btn" onclick="insertPrompt('Find the latest news on electric vehicles.')">🌍 Real-time Search</button>
-                    <button class="cap-btn" onclick="insertPrompt('Make a 15s video prompt about Mars exploration.')">🎥 Video Idea</button>
-                </div>
-            </div>
-        </div>
+    <div class="settings" id="settings">
+      <label>
+        Dark Mode
+        <input type="checkbox" onchange="toggleTheme()">
+      </label>
+      <label>
+        Save Chat History
+        <input type="checkbox">
+      </label>
+    </div>
 
-        <div class="typing" id="typing-indicator">SpaceGen is typing...</div>
+    <div class="input-area">
+      <input id="input" placeholder="Type your message..." />
+      <button onclick="send()">Send</button>
+    </div>
+  </div>
 
-        <div class="input-area">
-            <div class="input-wrapper">
-                <textarea id="user-input" placeholder="Type a message..." onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
-            </div>
-            <button id="send-btn" onclick="sendMessage()">Send</button>
-        </div>
-    </main>
+  <script>
+    let currentMode = "Chat";
 
-    <script>
-        const chatContainer = document.getElementById('chat-container');
-        const userInput = document.getElementById('user-input');
-        const typingIndicator = document.getElementById('typing-indicator');
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById("mode").innerText = mode + " Mode";
+      botMessage("You are now in " + mode + " mode.");
+    }
 
-        // Function to insert preset prompts
-        function insertPrompt(text) {
-            userInput.value = text;
-            userInput.focus();
-        }
+    function send() {
+      const input = document.getElementById("input");
+      const text = input.value.trim();
+      if (!text) return;
 
-        // Mock Save Settings
-        function saveSettings() {
-            const btn = document.querySelector('.btn-save');
-            const originalText = btn.innerText;
-            
-            btn.innerText = "Saved!";
-            btn.style.backgroundColor = "#10b981"; // Green
-            
-            setTimeout(() => {
-                btn.innerText = originalText;
-                btn.style.backgroundColor = ""; // Reset
-            }, 2000);
-        }
+      userMessage(text);
+      input.value = "";
 
-        function sendMessage() {
-            const text = userInput.value.trim();
-            if (!text) return;
+      // 🔌 API INTEGRATION POINT
+      // Replace this with OpenAI / Image / Video / Search API call
+      setTimeout(() => {
+        botMessage("SparkGen response for \"" + text + "\" in " + currentMode + " mode.");
+      }, 600);
+    }
 
-            addMessage(text, 'user');
-            userInput.value = '';
+    function userMessage(text) {
+      const div = document.createElement("div");
+      div.className = "msg user";
+      div.innerText = text;
+      document.getElementById("chat").appendChild(div);
+      scrollBottom();
+    }
 
-            typingIndicator.style.display = 'block';
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+    function botMessage(text) {
+      const div = document.createElement("div");
+      div.className = "msg bot";
+      div.innerText = text;
+      document.getElementById("chat").appendChild(div);
+      scrollBottom();
+    }
 
-            // Simulate AI delay
-            setTimeout(() => {
-                typingIndicator.style.display = 'none';
-                const response = generateResponse(text);
-                addMessage(response, 'ai');
-            }, 1200);
-        }
+    function scrollBottom() {
+      const chat = document.getElementById("chat");
+      chat.scrollTop = chat.scrollHeight;
+    }
 
-        function addMessage(htmlContent, sender) {
-            const div = document.createElement('div');
-            div.className = `message ${sender}`;
-            div.innerHTML = htmlContent;
-            chatContainer.appendChild(div);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
+    function newChat() {
+      document.getElementById("chat").innerHTML = "";
+      botMessage("New chat started.");
+    }
 
-        // --- SIMULATED AI LOGIC ---
-        function generateResponse(input) {
-            const lowerInput = input.toLowerCase();
-            const date = new Date().toLocaleDateString();
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+    }
 
-            // 1. IMAGE GENERATION
-            if (lowerInput.match(/image|picture|draw|photo/)) {
-                return `
-                    <span class="tag">DALL-E 3 / STABLE DIFFUSION</span>
-                    <h3>Generating Image Prompt...</h3>
-                    <p>I have optimized your request for the best visual output:</p>
-                    <div style="background:#f1f5f9; padding:1rem; border-radius:6px; font-family:monospace; font-size:0.9rem; color:#334155;">
-                        <strong>Prompt:</strong> ${input.replace(/image|picture|draw|generate/gi, '').trim()}, 8k resolution, soft lighting, highly detailed texture, photorealistic, wide angle.
-                    </div>
-                `;
-            }
+    function toggleSettings() {
+      const s = document.getElementById("settings");
+      s.style.display = s.style.display === "block" ? "none" : "block";
+    }
 
-            // 2. VIDEO GENERATION
-            if (lowerInput.match(/video|movie|clip/)) {
-                return `
-                    <span class="tag">VIDEO GENERATION (Runway/Sora)</span>
-                    <h3>Video Scene Script</h3>
-                    <ul>
-                        <li><strong>Concept:</strong> ${input.replace(/video|make a/gi, '').trim()}</li>
-                        <li><strong>Camera:</strong> Slow zoom in, cinematic 24fps.</li>
-                        <li><strong>Duration:</strong> 10 seconds.</li>
-                    </ul>
-                    <p><em>Ready to send to video generation API.</em></p>
-                `;
-            }
-
-            // 3. SEARCH / DATA
-            if (lowerInput.match(/news|price|weather|latest|who is/)) {
-                return `
-                    <span class="tag">REAL-TIME SEARCH</span>
-                    <h3>Live Search Results</h3>
-                    <p><strong>Query:</strong> ${input}</p>
-                    <ul>
-                        <li>Source A: Validated data point (Date: ${date})</li>
-                        <li>Source B: Supplementary information regarding this topic.</li>
-                    </ul>
-                    <p><small>Data retrieved via Serper API.</small></p>
-                `;
-            }
-
-            // 4. GENERAL CHAT
-            return `
-                <h3>SpaceGen Response</h3>
-                <p>I understand you are asking about: <strong>"${input}"</strong>.</p>
-                <p>This is a simulated response. In a real deployment, this text would be generated by the LLM configured in your sidebar (OpenAI or Anthropic) using the API key provided.</p>
-            `;
-        }
-    </script>
+    // Welcome message
+    botMessage("Welcome to SparkGen ⚡ How can I help you today?");
+  </script>
 </body>
 </html>
